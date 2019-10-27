@@ -1,0 +1,154 @@
+<?php
+/*
+* session implementation proof of concept
+* v 1.0
+* 
+*
+*/
+class Session
+{
+	private $sid;
+	private $keys = array(null,null,null);
+	private $ip;
+	private $in_session;
+	
+	public function __construct()
+	{
+		$this->in_session = false;
+	}
+	
+	public function init()
+	{
+		$this->sid = null;
+		$this->keys = array(null,null,null);
+		$this->ip = null;
+		session_cache_limiter("private");
+		session_cache_expire(15);
+		session_start();
+	}
+
+	public function reset()
+	{
+		if(session_is_registered('sid')) 
+		{
+			session_unregister('sid');
+			unset($_SESSION['sid']);
+		}
+
+    	if(session_is_registered('key1')) 
+        {
+			session_unregister('key1');
+			unset($_SESSION['key1']);
+	    }
+
+        if(session_is_registered('key2')) 
+        {
+             session_unregister('key2');
+			 unset($_SESSION['key2']);
+		}
+
+		if(session_is_registered('key3')) {
+			session_unregister('key3');
+			unset($_SESSION['key3']);
+		}
+
+        if(session_is_registered('ip')) {
+			session_unregister('ip');
+			unset($_SESSION['ip']);
+		}
+			
+		$this->sid = null;
+		$this->keys[0] = null;
+		$this->keys[1] = null;
+		$this->keys[2] = null;
+		$this->ip = null;
+	}
+	
+	public function check()
+	{
+		$failure = false;
+		$this->sid = isset($_SESSION['sid']) ? trim($_SESSION['sid']) : null;
+		$this->keys[0] = isset($_SESSION['key1']) ? trim($_SESSION['key1']) : null;
+		$this->keys[1] = isset($_SESSION['key2']) ? trim($_SESSION['key2']) : null;
+		$this->keys[2] = isset($_SESSION['key3']) ? trim($_SESSION['key3']) : null;
+		$this->ip = isset($_SESSION['ip']) ? trim($_SESSION['ip']) : null;
+
+		if(!session_is_registered("sid") || $this->sid == null) {
+			$failure = true;
+			$this->reset();
+		}         
+
+		if(!session_is_registered("key1") || $this->keys[0] == null) {
+			$failure = true;
+			$this->reset();
+		}
+
+		if(!session_is_registered("key2") || $this->keys[1] == null) {
+			$failure = true;
+			$this->reset();
+		}
+
+         if (!session_is_registered("key3") || $this->keys[2] == null) {
+
+             $failure = true;
+
+             $this->reset();
+
+         }
+
+         if (!session_is_registered("ip") || $this->ip == null) {
+
+             $failure = true;
+
+             $this->reset();
+
+         }
+         session_regenerate_id();
+         if ($failure != true) {
+             $this->in_session = true;
+
+         }
+         return $failure;
+     }
+     public function is_connected()
+     {
+         return $this->in_session;
+     }
+
+     public function set_keys($sid,$key1,$key2,$key3,$ip)
+
+     {
+
+         session_register("sid");
+
+         session_register("key1");
+
+         session_register("key2");
+
+         session_register("key3");
+
+         session_register("ip");
+
+         $_SESSION['sid'] = $sid;
+
+         $_SESSION['key1'] = $key1;
+
+         $_SESSION['key2'] = $key2;
+
+         $_SESSION['key3'] = $key3;
+
+         $_SESSION['ip'] = $ip;
+
+     }
+
+     public function destroy()
+     {
+
+         $this->reset();
+
+         session_destroy();
+
+     }
+
+ };
+ ?>
